@@ -25,7 +25,7 @@
 
   // Unique within the Cloudflare account. The button lets the operator rename
   // it; the default is a real, deployable name rather than a placeholder.
-  "name": "adsbookcms",
+  "name": "klikinaja",
   "main": "./src/worker.ts",
 
 
@@ -64,21 +64,21 @@
   "kv_namespaces": [
     {
       "binding": "SESSION",
-      "id": "00000000000000000000000000000000"
+      "id": "358729140fd84bc5bd682906a5bbb3f9"
     }
   ],
   "d1_databases": [
     {
       "binding": "OMS_DB",
-      "database_name": "adsbookcms-d1",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_name": "klikinaja-d1",
+      "database_id": "3dc6cdcb-518f-4def-a1d4-9c513afbcb60",
       "migrations_dir": "src/db/migrations"
     }
   ],
   "r2_buckets": [
     {
       "binding": "ASSET_BUCKET",
-      "bucket_name": "adsbookcms-assets"
+      "bucket_name": "klikinaja-assets"
     }
   ],
   "ai": {
@@ -102,8 +102,8 @@
   // change here only takes effect after `npm run build`. Redeploying an already
   // built bundle with new vars changes nothing. See ARCHITECTURE.md §5.
   "vars": {
-    "PUBLIC_SITE_NAME": "Your Store",
-    "PUBLIC_SITE_URL": "https://example.com",
+    "PUBLIC_SITE_NAME": "Klikinaja",
+    "PUBLIC_SITE_URL": "https://klikinaja.shop",
     // Deliberately empty, like the tagline below. A placeholder here becomes
     // the meta description Google prints under the store, and the second half
     // of the home page <title>.
@@ -112,8 +112,8 @@
     // every unconfigured store's <title>, which is how a fresh install came to
     // announce itself as "Toko Anda — Belum Dikonfigurasi".
     "PUBLIC_SITE_TAGLINE": "",
-    "PUBLIC_ADMIN_NAME": "AdsBookCMS Admin",
-    "PUBLIC_EMBED_ALLOWED_ORIGINS": "",
+    "PUBLIC_ADMIN_NAME": "Klikinaja Admin",
+    "PUBLIC_EMBED_ALLOWED_ORIGINS": "https://klikinaja.shop",
 
     // Root-relative or absolute. Replace the placeholder wordmark in
     // public/images/ with the store's own brand assets.
