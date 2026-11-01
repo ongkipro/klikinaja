@@ -1,3 +1,4 @@
+import { ChevronDown, CircleCheck } from "lucide-react";
 import { CMS_VERSION } from "@/lib/version";
 import {
   Dialog,
@@ -29,10 +30,522 @@ interface ChangelogRelease {
 // changelog.test.ts fails when version.ts moves without a matching entry here.
 const CHANGELOG_RELEASES: ChangelogRelease[] = [
   {
+    version: "1.8.5",
+    date: "1 November 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: true,
+    highlight: "Event Meta CAPI yang tertunda terkirim lebih cepat saat toko sepi.",
+    changes: [
+      {
+        title: "Antrean CAPI dikuras lebih banyak per jam",
+        description: "Cron per jam kini mengirim sampai 30 event tertunda (sebelumnya 10) dan berhenti bila Meta menolak, sehingga jatah kirim ulang event lain tidak terbuang.",
+      },
+    ],
+  },
+  {
+    version: "1.8.4",
+    date: "1 November 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: false,
+    highlight: "Dashboard yang lebih ringkas: grafik di layar pertama, pembanding di dalam grafik, dan istilah metrik dalam English.",
+    changes: [
+      {
+        title: "Layout dashboard baru",
+        description: "Periode, pembanding, dan refresh dalam satu toolbar. Enam KPI di atas, lalu grafik Revenue di samping Payment mix, lalu Action needed, Sales funnel, dan Top products & landing pages.",
+      },
+      {
+        title: "Compare di dalam grafik",
+        description: "Pembanding digambar sebagai garis putus-putus. Hari ini dibanding hari yang sama minggu lalu (Jumat vs Jumat), bulan ini dibanding tanggal yang sama bulan lalu, atau pilih sendiri. Periode yang masih berjalan dibanding sampai jam yang sama; Hari ini tampil kumulatif per jam.",
+      },
+      {
+        title: "KPI baru",
+        description: "AOV, Lead conversion, dan Revenue terpisah COD vs Non-COD. Setiap kartu menampilkan naik/turun, \"baru\" bila pembanding kosong, atau tanda strip bila belum ada data.",
+      },
+      {
+        title: "Action needed yang ringkas",
+        description: "Satu baris per antrean dengan angka, tanda merah untuk yang menunggu lebih dari 24 jam, dan diperbarui otomatis tiap menit.",
+      },
+      {
+        title: "Istilah English dan What's new",
+        description: "Nama metrik di dashboard dan Analitik memakai English (Revenue, Orders, AOV, Conversion rate, Funnel). Catatan rilis menjadi What's new: versi aktif lengkap, versi lama bisa dibuka satu per satu.",
+      },
+    ],
+  },
+  {
+    version: "1.8.3",
+    date: "1 November 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: false,
+    highlight: "Dashboard yang menunjukkan pekerjaan hari ini, export CSV, dan tampilan toko yang lebih bersih.",
+    changes: [
+      {
+        title: "Perlu tindakan",
+        description: "Dashboard kini menampilkan order yang menunggu konfirmasi, siap push ke Mengantar, push bermasalah, menunggu pembayaran online, lead belum dihubungi, serta antrean resi, pickup, dan drop-off. Angkanya sama dengan daftar yang dibuka, memakai syarat push Mengantar yang sama.",
+      },
+      {
+        title: "Perbandingan, corong, dan teratas",
+        description: "Setiap kartu menunjukkan naik/turun dibanding periode sebelumnya (dipotong di jam yang sama bila periode berjalan sampai hari ini), corong lead sampai paket diterima, dan 5 produk serta landing page teratas.",
+      },
+      {
+        title: "Export CSV",
+        description: "Pesanan, Pesanan tertinggal, dan Pengiriman bisa diunduh sebagai CSV sesuai filter yang aktif: satu baris per produk, setiap data satu kolom (nama, WhatsApp, alamat, kecamatan, kota, provinsi, produk, varian, harga, dan lainnya).",
+      },
+      {
+        title: "Belum dibayar yang benar",
+        description: "Filter dan kartu Belum dibayar kini menghitung order online (QRIS/VA/transfer) yang menunggu pembayaran, bukan COD. Pembayaran yang kedaluwarsa pindah ke filter Kedaluwarsa.",
+      },
+      {
+        title: "Tampilan toko",
+        description: "Header berisi nama toko di tengah dengan Official Store, footer menjadi navigasi dengan watermark nama toko, beranda tanpa daftar landing page, dan form checkout dengan tanda fokus serta centang saat isian benar.",
+      },
+    ],
+  },
+  {
+    version: "1.8.2",
+    date: "31 Oktober 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: false,
+    highlight: "Kategori Google resmi untuk setiap produk, form produk yang lebih rapi, dan logo login yang kembali ke beranda.",
+    changes: [
+      {
+        title: "Kategori Google resmi",
+        description: "Kategori Google dipilih otomatis dari nama produk (badge Otomatis), dengan saran lain yang tinggal diklik, atau cari sendiri dari taksonomi resmi Google dalam bahasa Indonesia (mis. sabun, serum wajah, cuka). ID-nya dikirim persis ke feed Google Merchant dan katalog Meta. Label kategori di toko terisi otomatis dan tetap bisa diubah. Merek kosong berarti nama toko.",
+      },
+      {
+        title: "Kartu varian yang rapi",
+        description: "Setiap varian punya kepala sendiri berisi nomor, ID varian (atau \"Baru\"), dan tombol hapus. Harga memakai awalan Rp, berat memakai gram, dan persentase hemat dari harga coret tampil otomatis.",
+      },
+      {
+        title: "Logo login ke beranda",
+        description: "Logo AdsBookCMS di halaman login kini bisa diklik untuk kembali ke beranda toko, di HP maupun desktop.",
+      },
+      {
+        title: "Upload foto tarik-lepas",
+        description: "Foto produk bisa ditarik ke kotak upload atau dipilih lewat tombol. Pratinjau, status mengunggah, serta tombol Ganti dan Hapus foto ada di satu tempat, lengkap dengan saran ukuran untuk feed Google dan Meta.",
+      },
+    ],
+  },
+  {
+    version: "1.8.1",
+    date: "31 Oktober 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: false,
+    highlight: "Halaman pembayaran dan terima kasih lebih jelas, feed Google lebih akurat, dan produk kini punya kategori, merek, serta deskripsi.",
+    changes: [
+      {
+        title: "Salin nomor VA dan rekening lebih mudah",
+        description: "Nomor VA dan rekening tampil penuh satu baris, dikelompokkan per 4 digit. Tombol salin ada di bawah nomor dan berubah jadi \"Tersalin\" saat ditekan. Nama penerima transfer tampil di baris sendiri.",
+      },
+      {
+        title: "Halaman terima kasih yang klop",
+        description: "Ringkasan pembayaran kini menampilkan biaya admin atau biaya layanan COD, jadi totalnya pas. Order VA/QRIS yang belum dibayar diarahkan ke instruksi pembayaran; hanya transfer manual yang diminta kirim bukti.",
+      },
+      {
+        title: "Kategori, merek, dan deskripsi produk",
+        description: "Form produk kini punya kolom Kategori, Merek, dan Deskripsi. Ketiganya tampil di halaman produk dan dikirim ke feed Google dan Meta. Isi untuk setiap produk agar feed tidak lagi memakai \"Umum\" dan nama toko.",
+      },
+      {
+        title: "Feed Google dan SEO",
+        description: "Harga di feed kini mengikuti varian termurah, sama dengan halaman produk, sehingga tidak ditolak Merchant Center karena harga beda. Data terstruktur produk diseragamkan, sitemap lebih jujur, dan toko kini punya /llms.txt untuk asisten AI.",
+      },
+    ],
+  },
+  {
+    version: "1.8.0",
+    date: "31 Oktober 2026",
+    releaseTag: "2026.10-ops",
+    isLatest: false,
+    highlight: "Analitik lengkap, follow-up WhatsApp satu ketuk, multi-gudang, dan tampilan toko baru ala tema Shopify.",
+    changes: [
+      {
+        title: "Analitik: landing page, produk, lokasi, waktu beli, dan UTM",
+        description: "Menu Analitik kini punya enam laporan: Ringkasan, Landing page, Produk, Lokasi, Waktu beli, dan UTM (per source, medium, campaign, sampai content). Setiap baris bisa dibuka ke daftar order dengan periode yang sama. Iklan & tracking › Link UTM membuat link iklan bertag UTM yang konsisten.",
+      },
+      {
+        title: "Follow-up WhatsApp satu ketuk",
+        description: "Chip tahap follow-up (Welcome sampai FU 4) di daftar dan detail order membuka WhatsApp dengan pesan siap kirim dan langsung mencatat tahapnya. Salah ketuk bisa dibatalkan dari notifikasi, dengan alasan koreksi. Daftar order tampil lebih ringkas.",
+      },
+      {
+        title: "Beberapa nomor WhatsApp CS",
+        description: "Pengaturan › Nomor WhatsApp menyimpan lebih dari satu nomor CS. Pembeli COD di halaman terima kasih dibagi rata ke nomor yang aktif, dan bisa diarahkan otomatis ke chat setelah order.",
+      },
+      {
+        title: "Multi-gudang dan pickup Mengantar",
+        description: "Gudang tambahan bisa melayani provinsinya sendiri; bila ongkir dari gudang itu gagal, otomatis memakai gudang utama. Saat push ke Mengantar, pilih drop-off atau jadwal pickup (tanggal, jam, kendaraan). Paket drop-off punya antrean sendiri di Pengiriman: Perlu Drop-off.",
+      },
+      {
+        title: "Push Mengantar yang aman dari paket ganda",
+        description: "Bila hasil push tidak pasti (koneksi putus, atau Mengantar sudah menerima tetapi gagal tersimpan), order dikunci dan tidak bisa dipush ulang. Paket yang sudah diterima Mengantar cukup ditautkan dari detail order; owner atau admin melepas kunci hanya setelah memeriksa dashboard Mengantar.",
+      },
+      {
+        title: "Ganti COD ke transfer atau VA dari detail order",
+        description: "Order COD yang belum dikirim bisa dialihkan ke pembayaran transfer atau virtual account dari detail order. Bila instruksi pembayaran dibuat ulang, pembeli yang terlanjur membayar instruksi lama tetap tercatat lunas.",
+      },
+      {
+        title: "Status operasional dan API operasional",
+        description: "Ikon status di samping lonceng (owner dan admin) merangkum apakah ada yang perlu ditangani atau setup yang belum selesai, beserta waktu pembayaran dan Create Order terakhir serta antrean tertua. API operasional /api/ops/v1 dan CLI adsbook membaca order dengan API key ber-scope.",
+      },
+      {
+        title: "Tampilan toko ala tema Shopify",
+        description: "Tombol beli dan pilihan hitam, abu netral, label diskon biru. Header tidak lagi melekat: baris Official Store, logo toko (atau nama toko bila logo belum diunggah), dan ikon produk. Harga langsung di bawah judul kartu, breadcrumb satu baris dengan ikon, dan catatan ongkir serta tombol pesan ganda di halaman produk dihapus.",
+      },
+      {
+        title: "Halaman kebijakan mengikuti pengaturan toko",
+        description: "Kebijakan Privasi, Pengiriman & Retur, Syarat & Ketentuan, dan Kontak ditulis ulang untuk toko apa pun dan memakai nama toko, domain, WhatsApp, serta email dan alamat usaha baru di Pengaturan › Store. Kalimat yang datanya belum diisi tidak ditampilkan.",
+      },
+      {
+        title: "Ikon, halaman masuk, dan menu akun baru",
+        description: "Ikon AdsBookCMS baru untuk tab browser dan layar utama iOS (toko yang sudah memasang ikonnya sendiri tetap memakainya). Halaman masuk admin dirapikan: muat satu layar di HP dan desktop, dengan QRIS bercanda di sisi kiri (CMS gratis, server gratis). Tombol akun di kanan atas kini membuka menu: profil, pengaturan toko, storefront, catatan rilis, dan Keluar.",
+      },
+    ],
+  },
+  {
+    version: "1.7.14",
+    date: "29 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    isLatest: false,
+    highlight: "Order lama yang belum pernah masuk Kelola kini bisa dikirim sekali klik.",
+    changes: [
+      {
+        title: "Tombol Kirim order lama di plugin Kelola",
+        description: "Webhook dan sinkron per jam hanya mengirim order 24 jam terakhir, jadi order dari sebelum Kelola disambungkan tidak pernah masuk. Halaman pengaturan plugin Kelola kini menampilkan jumlah order lama yang belum terkirim dan tombol Kirim order lama untuk mengirimnya. Order abandoned dan order yang dibatalkan tetap tidak dikirim.",
+      },
+    ],
+  },
+  {
+    version: "1.7.13",
+    date: "24 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    isLatest: false,
+    highlight: "Transfer manual bisa dikonfirmasi dari detail order, dan Purchase-nya terkirim ke Meta.",
+    changes: [
+      {
+        title: "Tombol Transfer Diterima",
+        description: "Order transfer bank manual yang belum lunas kini punya tombol Transfer Diterima di kartu Pembayaran. Setelah dikonfirmasi, order berstatus lunas dan bisa dipush ke Mengantar. Sebelumnya order ini tidak bisa ditandai lunas dari dashboard.",
+      },
+      {
+        title: "Purchase Meta untuk pembeli yang transfer lewat WhatsApp",
+        description: "Konfirmasi itu langsung mengirim Purchase ke Meta lewat server (CAPI), memakai identitas iklan yang tersimpan saat checkout. Pembeli tidak perlu kembali ke halaman terima kasih. Nomor invoice yang sama dipakai sebagai event_id, jadi tidak pernah terhitung dua kali. COD tetap mengirim Purchase dari halaman terima kasih.",
+      },
+    ],
+  },
+  {
+    version: "1.7.12",
+    date: "24 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    isLatest: false,
+    highlight: "Sitemap dan judul halaman lebih bersih untuk Google.",
+    changes: [
+      {
+        title: "Slug iklan kedua tidak lagi masuk sitemap",
+        description: "Landing page native yang memakai konten halaman lain (canonical ke halaman itu) bisa ditandai canonicalSlug di register. Sitemap hanya mencantumkan halaman aslinya, sehingga Google tidak melaporkannya sebagai duplikat.",
+      },
+      {
+        title: "Nama toko tidak tertulis dua kali di judul",
+        description: "Judul Kebijakan Privasi, Syarat & Ketentuan, dan Pengiriman tidak lagi menambahkan nama toko bila judulnya sudah memuat nama itu.",
+      },
+    ],
+  },
+  {
+    version: "1.7.11",
+    date: "23 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Halaman produk lebih cepat terbuka, termasuk saat dilayani dari server luar negeri.",
+    changes: [
+      {
+        title: "Halaman produk membaca database lebih sedikit",
+        description: "Katalog kini dibaca sekali per kunjungan dan bacaan yang tidak saling bergantung dijalankan bersamaan. Waktu tunggu halaman produk sebelum mulai tampil jadi lebih singkat, terutama bila Cloudflare melayani pengunjung dari server di Amerika.",
+      },
+      {
+        title: "Worker berjalan dekat database (Smart Placement)",
+        description: "Template wrangler.jsonc kini menyalakan Smart Placement. Toko yang sudah terpasang perlu menambahkannya di wrangler.jsonc sendiri; deploy preflight akan mengingatkan bila belum.",
+      },
+    ],
+  },
+  {
+    version: "1.7.10",
+    date: "23 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Panel Siapkan Toko kini memperingatkan saat tidak ada kurir aktif.",
+    changes: [
+      {
+        title: "Langkah wajib: aktifkan minimal satu kurir",
+        description: "Bila semua kurir dimatikan, checkout tidak bisa menghitung ongkir dan pembeli hanya melihat pesan gagal. Panel Siapkan Toko di dashboard kini menampilkan langkah ini dengan tautan langsung ke halaman Ekspedisi.",
+      },
+    ],
+  },
+  {
+    version: "1.7.9",
+    date: "23 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Checkout lebih tahan gangguan ongkir dan pilihan transfer lebih jelas.",
+    changes: [
+      {
+        title: "Ongkir COD tetap muncul saat estimasi kecamatan gagal",
+        description: "Bila estimasi ongkir ke kecamatan tujuan gagal, pembeli COD kini mendapat ongkir rata-rata kota yang dikonfirmasi admin, tidak lagi berhenti di pesan gagal. Pembayaran di muka tetap memakai ongkir kurir asli.",
+      },
+      {
+        title: "Rekening transfer tampil lengkap",
+        description: "Pilihan transfer bank kini menampilkan nama pemilik rekening di samping keterangan biaya. Toko dengan satu rekening atau satu bank Virtual Account menampilkannya langsung sebagai satu pilihan, tanpa harus membuka daftar terlebih dulu.",
+      },
+      {
+        title: "Form lengkap mengenali provinsi pengunjung sejak awal",
+        description: "Form lengkap kini menerima provinsi pengunjung seperti form ringkas, sehingga pilihan COD sesuai provinsi tampil tanpa jeda.",
+      },
+    ],
+  },
+  {
+    version: "1.7.8",
+    date: "22 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Pratinjau toko lewat alamat IP tidak lagi dialihkan ke domain toko.",
+    changes: [
+      {
+        title: "Pratinjau lewat alamat IP",
+        description: "Membuka toko lewat alamat IP, misalnya dari jaringan lokal atau Tailscale saat pengembangan, sebelumnya langsung dialihkan ke domain toko sehingga perubahan tidak bisa dilihat. Kini alamat IP diperlakukan sama seperti localhost. Pengunjung yang datang lewat domain tidak terpengaruh.",
+      },
+    ],
+  },
+  {
+    version: "1.7.7",
+    date: "22 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Toko bisa disembunyikan dari mesin pencari dengan satu pengaturan.",
+    changes: [
+      {
+        title: "Opsi noindex untuk seluruh toko",
+        description: "Pengaturan PUBLIC_SITE_NOINDEX=true membuat semua halaman toko tidak diindeks mesin pencari. Cocok untuk domain funnel iklan atau COD yang menjual produk yang sama dengan toko utama merek, supaya keduanya tidak bersaing di hasil pencarian. Iklan berbayar tetap berjalan. Tanpa pengaturan ini toko tetap diindeks seperti biasa.",
+      },
+    ],
+  },
+  {
+    version: "1.7.6",
+    date: "22 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Judul utama beranda tidak lagi diakhiri tanda pisah saat tagline kosong.",
+    changes: [
+      {
+        title: "Judul beranda dan nama toko di header lebih rapi",
+        description: "Toko tanpa tagline sebelumnya menampilkan judul utama beranda (dibaca mesin pencari dan pembaca layar) sebagai \"Nama Toko — \" dengan tanda pisah menggantung, begitu juga keterangan saat kursor diarahkan ke nama toko di header. Kini keduanya hanya berisi nama toko, atau nama toko dan tagline bila tagline diisi.",
+      },
+    ],
+  },
+  {
+    version: "1.7.5",
+    date: "22 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Header toko kini bisa menampilkan logo merek sendiri di samping nama toko.",
+    changes: [
+      {
+        title: "Logo merek di header (opsional)",
+        description: "Isi PUBLIC_SITE_BRAND_MARK dengan path gambar (misalnya /images/merek.svg) untuk menampilkan logo toko di samping nama toko pada header. Bila tidak diisi, header tetap memakai monogram huruf seperti sebelumnya, jadi toko lain tidak berubah.",
+      },
+    ],
+  },
+  {
+    version: "1.7.4",
+    date: "21 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Halaman produk kini disimpan di edge per provinsi dengan TTFB di bawah 0,3 detik.",
+    changes: [
+      {
+        title: "Cache halaman produk & landing page per provinsi",
+        description: "Halaman produk (/produk/<slug>) dan landing page kini disimpan selama 2 menit di edge Cloudflare berdasarkan kode provinsi pengunjung (Geo-IP). Pengunjung dari provinsi yang sama menerima halaman instan tanpa query database, sementara pemilihan form checkout (COD vs non-COD) tetap akurat sesuai provinsi masing-masing.",
+      },
+      {
+        title: "Halaman dari cache langsung dijawab sebelum pengecekan skema D1",
+        description: "Permintaan yang sudah ada di cache edge kini langsung dijawab sebelum Worker memeriksa tabel migrasi D1, memangkas jeda byte pertama (TTFB) pada isolate baru.",
+      },
+    ],
+  },
+  {
+    version: "1.7.3",
+    date: "21 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Foto produk yang diunggah tampil jauh lebih cepat.",
+    changes: [
+      {
+        title: "Foto unggahan disimpan di edge Cloudflare",
+        description: "Foto dari penyimpanan R2 sebelumnya dibaca ulang lewat Worker di setiap permintaan, sekitar satu detik sebelum byte pertama. Kini salinannya disimpan di edge selama sehari dan dikirim tanpa membaca database maupun R2. Foto yang dihapus berhenti tampil paling lambat dalam sehari.",
+      },
+    ],
+  },
+  {
+    version: "1.7.2",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Teks halaman benar-benar tidak lagi bergeser saat font dimuat.",
+    changes: [
+      {
+        title: "Font Inter hanya dalam mode optional",
+        description: "Font dipakai bila siap saat halaman pertama digambar; jika belum, halaman memakai font sistem sampai kunjungan berikutnya. Perbaikan 1.7.1 ternyata belum cukup karena aturan font bawaan paket masih ikut termuat dan menukar font; kini aturan itu dihapus. Hanya subset latin dan latin-ext yang dideklarasikan.",
+      },
+    ],
+  },
+  {
+    version: "1.7.1",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Teks halaman tidak lagi bergeser saat font dimuat.",
+    changes: [
+      {
+        title: "Font tidak bertukar di tengah halaman",
+        description: "Font Inter kini dipakai bila sudah siap saat halaman pertama digambar; jika belum, halaman memakai font sistem sampai kunjungan berikutnya. Judul dan paragraf tidak lagi melompat (CLS).",
+      },
+    ],
+  },
+  {
+    version: "1.7.0",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Halaman toko dan landing page terbuka lebih cepat, dan tidak lagi bergeser saat font dimuat.",
+    changes: [
+      {
+        title: "Cache halaman dua menit",
+        description:
+          "Beranda, daftar produk, dan landing page disimpan sebentar di edge Cloudflare, sehingga pengunjung berikutnya tidak menunggu render ulang. Perubahan dari admin tampil paling lama dua menit kemudian. Halaman produk, form, terima kasih, dan admin tidak pernah di-cache, dan harga tetap divalidasi ulang saat order.",
+      },
+      {
+        title: "Font dimuat lebih awal",
+        description: "Font Inter dipreload sehingga judul tidak lagi bergeser saat font tiba (CLS).",
+      },
+    ],
+  },
+  {
+    version: "1.6.5",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Satu domain utama: domain lama dan http diarahkan otomatis, link iklan tetap jalan.",
+    changes: [
+      {
+        title: "Domain lama diarahkan ke domain utama",
+        description:
+          "Domain lama toko (diatur lewat PUBLIC_ALIAS_HOSTS) diarahkan permanen ke domain utama, lengkap dengan path dan parameter iklan (UTM, fbclid). Webhook dan callback pembayaran tidak ikut diarahkan.",
+      },
+      {
+        title: "Selalu HTTPS",
+        description: "Kunjungan lewat http kini selalu diarahkan ke https, walau pengaturan zona Cloudflare belum mengaktifkannya.",
+      },
+    ],
+  },
+  {
+    version: "1.6.4",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Pembeli COD dari form singkat kini otomatis diarahkan ke WhatsApp CS dari halaman terima kasih.",
+    changes: [
+      {
+        title: "Redirect WhatsApp untuk form singkat",
+        description:
+          "Order COD dari form singkat (middle) sebelumnya tidak pernah diarahkan ke WhatsApp walau pengaturannya aktif. Kini setiap order COD yang tercatat ikut diarahkan, setelah Purchase terkirim.",
+      },
+      {
+        title: "Catatan nomor WhatsApp lebih jelas",
+        description: "Halaman terima kasih kini menyebut bahwa CS akan menghubungi WhatsApp pembeli di nomornya sendiri.",
+      },
+    ],
+  },
+  {
+    version: "1.6.3",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Pesan WhatsApp CRM kini menyebut varian, jumlah, dan harga satuan yang dipilih pembeli.",
+    changes: [
+      {
+        title: "Varian dan harga di Template CRM",
+        description:
+          "Variabel baru: {{varian}}, {{product_variant}}, {{jumlah}}, {{harga_satuan}}, dan {{rincian_pesanan}} (satu baris per item). Template bawaan memakainya; template yang sudah Anda ubah tetap seperti semula dan bisa ditambahkan variabelnya di Pengaturan → Template CRM.",
+      },
+      {
+        title: "Harga coret tidak lagi dikarang",
+        description:
+          "{{compare_price}} kini memakai harga coret asli varian. Tanpa harga coret, nilainya sama dengan harga jual, tidak lagi harga × 1,3.",
+      },
+      {
+        title: "Status tugas terjadwal di dashboard",
+        description:
+          "Panel kesehatan menampilkan apakah pemeliharaan per jam (retry CAPI, rekonsiliasi pembayaran, skor penerima, plugin) benar-benar berjalan.",
+      },
+    ],
+  },
+  {
+    version: "1.6.2",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Skor penerima Mengantar pulih sendiri setelah akun di-whitelist, termasuk di toko yang lama tidak menerima order.",
+    changes: [
+      {
+        title: "Cek ulang otomatis setelah whitelist",
+        description:
+          "Order yang pernah ditolak Mengantar karena belum di-whitelist kini dicek ulang tiap jam berapa pun umurnya, jadi peringatan di dashboard hilang sendiri begitu akses aktif.",
+      },
+      {
+        title: "Pesan penolakan lebih jelas",
+        description:
+          "Pesan dari Mengantar kini menyebut fitur yang ditolak (cek skor penerima) dan API key mana yang dipakai: dari dashboard atau dari secret server. Dengan begitu permintaan ke CS Mengantar tepat sasaran.",
+      },
+    ],
+  },
+  {
+    version: "1.6.1",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Halaman Kelola CRM lebih mudah dibaca saat ada order yang gagal terkirim.",
+    changes: [
+      {
+        title: "Jumlah gagal berwarna merah",
+        description: "Angka Gagal 24 jam di Kelola CRM kini merah setiap kali ada order yang belum diterima Kelola.",
+      },
+      {
+        title: "Menu Plugin tetap tersorot",
+        description: "Saat membuka pengaturan sebuah plugin, menu Pengaturan → Plugin di sidebar tetap tersorot.",
+      },
+    ],
+  },
+  {
+    version: "1.6.0",
+    date: "20 Oktober 2026",
+    releaseTag: "2026.10-plugins",
+    highlight: "Fitur opsional kini berupa plugin: tidak terpasang sampai toko mengaktifkannya.",
+    changes: [
+      {
+        title: "Halaman Plugin",
+        description:
+          "Pengaturan → Plugin menampilkan fitur opsional toko. Owner memasang dan mengaktifkannya sendiri; menonaktifkan tidak menghapus data, dan Hapus data menghapus tabel plugin itu.",
+      },
+      {
+        title: "Kelola CRM menjadi plugin",
+        description:
+          "Sambungan Kelola pindah dari Profil & Integrasi ke Pengaturan → Plugin → Kelola CRM. Toko yang tidak mengaktifkannya tidak membawa tabel maupun menu Kelola.",
+      },
+    ],
+  },
+  {
+    version: "1.5.12",
+    date: "19 Oktober 2026",
+    releaseTag: "2026.10-landing-hero-h1",
+    highlight: "Order dan pesanan tertinggal bisa dikirim otomatis ke Kelola CRM untuk ditindaklanjuti tim.",
+    changes: [
+      {
+        title: "Order masuk ke Penjualan Kelola",
+        description:
+          "Tempel URL webhook dan secret dari Kelola (sejak 1.6.0 di Pengaturan → Plugin). Setiap order baru dikirim setelah checkout tanpa menunda pembeli, dicoba ulang tiap jam selama 24 jam, dan bisa dikirim ulang dari detail order.",
+      },
+      {
+        title: "Pesanan tertinggal untuk follow-up",
+        description:
+          "Pesanan tertinggal yang 30 menit kemudian masih belum jadi order dikirim ke menu Data tertinggal di Kelola — terpisah dari Penjualan, jadi omzet tidak menggelembung.",
+      },
+      {
+        title: "Halaman asal order",
+        description: "Setiap order mencatat halaman (landing page) tempat pembeli memesan, terlihat di detail order.",
+      },
+    ],
+  },
+  {
     version: "1.5.11",
     date: "19 Oktober 2026",
     releaseTag: "2026.10-landing-hero-h1",
-    isLatest: true,
     highlight: "Landing page dengan HTML sendiri tidak lagi memicu request sia-sia setiap kali dibuka.",
     changes: [
       {
@@ -376,6 +889,27 @@ interface ChangelogModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/**
+ * One release's changes, the same list for the running release and for an
+ * opened earlier one: a check, the title on its own line, the explanation
+ * under it, a hairline between items.
+ */
+function ChangeList({ changes, compact = false }: { changes: ChangelogRelease["changes"]; compact?: boolean }) {
+  return (
+    <ul className="divide-y divide-slate-100">
+      {changes.map((item, idx) => (
+        <li key={idx} className={`flex gap-3 ${compact ? "py-2.5" : "py-3"} first:pt-1 last:pb-0`}>
+          <CircleCheck className="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className={`${compact ? "text-xs" : "text-sm"} font-medium leading-5 text-slate-900`}>{item.title}</p>
+            <p className="mt-0.5 text-xs leading-5 text-slate-600">{item.description}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -383,69 +917,62 @@ export function ChangelogModal({ open, onOpenChange }: ChangelogModalProps) {
         <DialogHeader className="border-b border-slate-200 px-6 py-4 text-left">
           <div className="flex items-center justify-between pr-8">
             <DialogTitle className="text-base font-semibold text-slate-950">
-              Catatan Rilis
+              What's new
             </DialogTitle>
             <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs font-medium text-slate-600">
               v{CMS_VERSION.version}
             </span>
           </div>
           <DialogDescription className="text-xs text-slate-500">
-            Dokumentasi pembaruan fitur, optimasi performa, dan catatan arsitektur AdsBookCMS.
+            Apa yang berubah di setiap versi AdsBookCMS.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
-          {CHANGELOG_RELEASES.map((rel) => (
-            <section
-              key={rel.version}
-              className="border-b border-slate-100 pb-6 last:border-b-0 last:pb-0"
-            >
-              <div className="flex flex-wrap items-baseline gap-2">
-                <h3 className="font-mono text-sm font-semibold text-slate-950">
-                  v{rel.version}
-                </h3>
-                {rel.isLatest && (
-                  <span className="rounded bg-slate-900 px-1.5 py-0.5 text-xs font-medium text-white">
-                    Aktif
-                  </span>
-                )}
-                <span className="text-xs text-slate-400">·</span>
+        {/* The running release in full; every earlier one a single line that
+            opens in place. Forty releases expanded at once read as one wall
+            of text (Paduka, 2026-11-01). */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {CHANGELOG_RELEASES.slice(0, 1).map((rel) => (
+            <section key={rel.version} aria-labelledby={`release-${rel.version}`}>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 id={`release-${rel.version}`} className="font-mono text-sm font-semibold text-slate-950">v{rel.version}</h3>
+                {rel.isLatest && <span className="rounded bg-slate-900 px-1.5 py-0.5 text-xs font-medium text-white">Aktif</span>}
                 <time className="text-xs text-slate-500">{rel.date}</time>
-                {rel.releaseTag && (
-                  <>
-                    <span className="text-xs text-slate-400">·</span>
-                    <span className="font-mono text-xs text-slate-400">
-                      {rel.releaseTag}
-                    </span>
-                  </>
-                )}
               </div>
+              <p className="mt-2 text-sm leading-6 text-slate-800">{rel.highlight}</p>
+              <div className="mt-3"><ChangeList changes={rel.changes} /></div>
+            </section>
+          ))}
 
-              <p className="mt-1.5 text-xs text-slate-600">
-                {rel.highlight}
-              </p>
-
-              <ul className="mt-3 space-y-2 text-xs text-slate-700">
-                {rel.changes.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2 leading-relaxed">
-                    <span
-                      className="mt-1.5 size-1.5 shrink-0 rounded-full bg-slate-300"
-                      aria-hidden="true"
-                    />
-                    <div>
-                      <strong className="font-medium text-slate-900">
-                        {item.title}:
-                      </strong>{" "}
-                      <span className="text-slate-600">{item.description}</span>
-                    </div>
+          {CHANGELOG_RELEASES.length > 1 && (
+            <section className="mt-6" aria-labelledby="release-history">
+              <h3 id="release-history" className="text-xs font-semibold uppercase tracking-wider text-slate-500">Versi sebelumnya</h3>
+              <ul className="mt-2 divide-y divide-slate-100 rounded-lg border border-slate-200">
+                {CHANGELOG_RELEASES.slice(1).map((rel) => (
+                  <li key={rel.version}>
+                    <details className="group">
+                      <summary className="flex cursor-pointer list-none items-start gap-3 px-3.5 py-3 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-slate-300 [&::-webkit-details-marker]:hidden">
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-baseline gap-2">
+                            <span className="font-mono text-xs font-semibold text-slate-900">v{rel.version}</span>
+                            <time className="text-xs text-slate-400">{rel.date}</time>
+                          </span>
+                          <span className="mt-0.5 block truncate text-xs leading-5 text-slate-600 group-open:whitespace-normal">{rel.highlight}</span>
+                        </span>
+                        <ChevronDown className="mt-0.5 size-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" aria-hidden="true" />
+                      </summary>
+                      <div className="border-t border-slate-100 bg-slate-50/50 px-3.5 pb-3 pt-2">
+                        <ChangeList changes={rel.changes} compact />
+                      </div>
+                    </details>
                   </li>
                 ))}
               </ul>
             </section>
-          ))}
+          )}
         </div>
 
-        <DialogFooter className="border-t border-slate-200 bg-slate-50/70 px-6 py-3 sm:flex sm:items-center sm:justify-between">
+        <DialogFooter className="m-0 rounded-none border-t border-slate-200 bg-slate-50/70 px-6 py-3 sm:flex sm:items-center sm:justify-between">
           <div className="text-xs font-mono text-slate-500">
             {CMS_VERSION.coreEngine} · Schema v{CMS_VERSION.schemaVersion}
           </div>

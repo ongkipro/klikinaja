@@ -29,6 +29,7 @@ export type PersistOrderInput = {
   courierService?: string;
   adClickIds?: string;
   metaRequestContext?: string;
+  sourcePagePath?: string;
 };
 
 export type PersistedOrder = {
@@ -240,6 +241,8 @@ export type RecordAbandonedOrderInput = {
   province?: string;
   totalAmount?: number;
   variantId?: number;
+  /** The page the lead was captured on (PRD A36), already clipped. */
+  sourcePagePath?: string | null;
 };
 
 export type RecordedAbandonedOrder = {
@@ -302,7 +305,8 @@ export async function recordAbandonedOrder(
              total_amount = ?,
              payment_status = 'unpaid',
              shipping_status = 'abandoned',
-             created_at = ?
+             created_at = ?,
+             source_page_path = COALESCE(source_page_path, ?)
          WHERE id = ? AND shipping_status = 'abandoned'`,
       )
       .bind(
@@ -311,6 +315,7 @@ export async function recordAbandonedOrder(
         province,
         totalAmount,
         createdAt,
+        input.sourcePagePath || null,
         existing.id,
       )
     ];
@@ -350,14 +355,14 @@ export async function recordAbandonedOrder(
           address, province, city, district,
           payment_method, payment_status, shipping_status,
           total_amount, shipping_cost, discount_amount, cod_service_fee,
-          cod_service_fee_vat, cod_fee_bearer, created_at
+          cod_service_fee_vat, cod_fee_bearer, created_at, source_page_path
         )
         SELECT
           ?, ?, ?, ?,
           ?, ?, '', '',
           'cod', 'unpaid', 'abandoned',
           ?, 0, 0, 0,
-          0, 'buyer', ?
+          0, 'buyer', ?, ?
         WHERE NOT EXISTS (
           SELECT 1
           FROM orders
@@ -375,6 +380,7 @@ export async function recordAbandonedOrder(
         province || "ID-JK",
         totalAmount,
         createdAt,
+        input.sourcePagePath || null,
         customerPhone,
       ),
   ];
@@ -571,6 +577,7 @@ export async function persistOrder(
                  courier_service = ?,
                  ad_click_ids = COALESCE(?, ad_click_ids),
                  meta_request_context = COALESCE(?, meta_request_context),
+                 source_page_path = COALESCE(?, source_page_path),
                  seller_bank_account_id = ?,
                  seller_bank_code = ?,
                  seller_bank_name = ?,
@@ -609,6 +616,7 @@ export async function persistOrder(
             input.courierService || null,
             input.adClickIds || null,
             input.metaRequestContext || null,
+            input.sourcePagePath || null,
             sellerBankAccount?.id || null,
             sellerBankAccount?.bank_code || null,
             sellerBankAccount
@@ -629,13 +637,13 @@ export async function persistOrder(
               total_amount, shipping_cost, cod_service_fee, cod_service_fee_vat,
               cod_fee_bearer, payment_method, payment_status, shipping_status,
               destination_area_id, courier_code, courier_service, ad_click_ids,
-              meta_request_context,
+              meta_request_context, source_page_path,
               seller_bank_account_id, seller_bank_code, seller_bank_name,
               seller_account_holder, seller_account_number, created_at,
               checkout_fingerprint, checkout_dedupe_expires_at
             ) VALUES (
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending',
-              ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+              ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )`,
           )
           .bind(
@@ -664,6 +672,7 @@ export async function persistOrder(
             input.courierService || null,
             input.adClickIds || null,
             input.metaRequestContext || null,
+            input.sourcePagePath || null,
             sellerBankAccount?.id || null,
             sellerBankAccount?.bank_code || null,
             sellerBankAccount
@@ -714,8 +723,8 @@ export async function persistOrder(
     statements.push(
       database
         .prepare(
-          `INSERT INTO order_items (order_id, variant_id, quantity, unit_price)
-           SELECT id, ?, ?, ?
+          `INSERT INTO order_items (order_id, variant_id, quantity, unit_price, weight_grams)
+           SELECT id, ?, ?, ?, (SELECT weight_grams FROM product_variants WHERE id = ?)
            FROM orders
            WHERE ${identityPredicate}`,
         )
@@ -723,6 +732,7 @@ export async function persistOrder(
           variant.id,
           input.quantity,
           unitPrice,
+          variant.id,
           ...identityBindings,
         ),
       database

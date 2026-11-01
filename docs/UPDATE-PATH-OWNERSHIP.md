@@ -17,6 +17,11 @@ from the release:
 
 - `src/**` — all source, scripts, styles, and `src/db/migrations/**` (the sole
   ordered schema source; the install applies only the missing suffix).
+- `src/plugins/**`: first-party plugins such as Kelola. Every install carries
+  their code. A plugin is installed on a store only when the store activates it
+  at Pengaturan → Plugin, which writes D1 rows and plugin tables, not files. An
+  install that does not use a plugin keeps its files as they are and does not
+  delete them (ADR-027, ADR-028).
 - `public/**` **except** merchant brand assets (see install-owned) — shared
   static files, and the favicons until a store replaces them.
 - `package.json`, `package-lock.json` — product dependencies and scripts.
@@ -43,7 +48,7 @@ copy-paste update must leave them byte-identical:
 - **`.wrangler/`**, `node_modules/`, `.astro/`, `dist/`, `tmp/` — local
   Cloudflare state and build artifacts. Gitignored; never copied.
 - **Merchant brand assets** the store replaced — `public/images/logo.svg`
-  (admin and login tab icon), `public/images/adsbook-mark.webp` (wordmark),
+  (admin and login tab icon),
   `public/images/payment/**` marks, and the favicons `public/favicon.ico`,
   `public/favicon.png` (32 px) and `public/favicon-192.png` (apple-touch; keep
   it full-bleed, the OS rounds it). The product ships neutral defaults; a store

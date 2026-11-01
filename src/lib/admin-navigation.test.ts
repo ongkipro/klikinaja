@@ -28,7 +28,7 @@ test("scoped roles see their complete workspace without privileged settings", ()
     advertiserItems.map((item) => item.id),
     // "content" is deliberately absent: the storefront content editor is
     // reachable at /admin/content and left out of the menu (ADR-018).
-    ["dashboard", "products", "ads"],
+    ["dashboard", "products", "analytics", "ads"],
   );
   assert.equal(
     advertiserItems
@@ -67,4 +67,8 @@ test("navigation active matching keeps required query filters and accepts pagina
     isAdminNavHrefActive("/admin/landing-pages/12/edit", "/admin/landing-pages"),
     false,
   );
+  // A plugin's settings page keeps "Plugin" lit; nothing else matches by prefix.
+  assert.equal(isAdminNavHrefActive("/admin/settings/plugins/kelola", "/admin/settings/plugins"), true);
+  assert.equal(isAdminNavHrefActive("/admin/settings/pluginsx", "/admin/settings/plugins"), false);
+  assert.equal(isAdminNavHrefActive("/admin/settings/plugins/kelola", "/admin/settings/store"), false);
 });

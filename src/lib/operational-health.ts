@@ -44,7 +44,8 @@ export type HealthSignalId =
   | "receiver-score"
   | "autolaris"
   | "google-ads-outbox"
-  | "alerting";
+  | "alerting"
+  | "scheduler";
 
 export type HealthSignal = {
   id: HealthSignalId;
@@ -243,6 +244,59 @@ export function classifyAlerting(
   return webhookConfigured
     ? signal("alerting", "healthy", "configured", null, now)
     : signal("alerting", "unknown", "not-configured", null, now);
+}
+
+/** Two missed hours before the panel calls the clock stopped. */
+export const SCHEDULER_STALE_MINUTES = 150;
+
+/**
+ * Stamp one scheduled run in the status row (`ops_health_snapshot`). It was a
+ * KV write every hour (A-379, PRD A40 E5): KV Free allows 1,000 writes a day
+ * and the account-wide allowance has run out before (ADR-021). Throws on a D1
+ * error; the cron runs it inside `housekeeping()`, so a failure is logged and
+ * the run goes on. Touches only `scheduler_ran_at`, never the snapshot.
+ */
+export async function recordSchedulerRun(database: D1Database, at: Date) {
+  await database
+    .prepare(
+      `INSERT INTO ops_health_snapshot (id, scheduler_ran_at) VALUES (1, ?)
+       ON CONFLICT(id) DO UPDATE SET scheduler_ran_at = excluded.scheduler_ran_at`,
+    )
+    .bind(at.toISOString())
+    .run();
+}
+
+/**
+ * Whether the hourly maintenance runs at all.
+ *
+ * Every retry in this product rides that clock: the CAPI and Google Ads
+ * drains, AutoLaris reconciliation, the Receiver Score backfill, plugin hooks
+ * and these alerts. A store with no cron slot looked healthy until something
+ * needed a retry; zanobyshop (2026-10-20) read as "not whitelisted" for a day
+ * because nothing ever asked Mengantar again. No stamp yet is `unknown`: a
+ * store just installed, or one whose slot was given up on purpose. A stamp
+ * that stopped is `degraded`.
+ */
+export function classifyScheduler(lastRunAt: string | null | undefined, now: number): HealthSignal {
+  if (lastRunAt === undefined) return signal("scheduler", "unknown", "unreadable", null, now);
+  if (!lastRunAt) return signal("scheduler", "unknown", "scheduler-never-ran", null, now);
+  const age = ageMinutes(lastRunAt, now);
+  return age !== null && age > SCHEDULER_STALE_MINUTES
+    ? signal("scheduler", "degraded", "scheduler-stalled", lastRunAt, now)
+    : signal("scheduler", "healthy", "scheduler-ran", lastRunAt, now);
+}
+
+/** Null when no run was ever stamped; undefined when the row cannot be read. */
+export async function readSchedulerHeartbeat(database: D1Database): Promise<string | null | undefined> {
+  try {
+    const row = await database
+      .prepare("SELECT scheduler_ran_at FROM ops_health_snapshot WHERE id = 1")
+      .first<{ scheduler_ran_at: string | null }>();
+    return row?.scheduler_ran_at ?? null;
+  } catch (error) {
+    console.error("operational-health-scheduler-unreadable", error);
+    return undefined;
+  }
 }
 
 /** When Meta last accepted an event. */
@@ -513,7 +567,7 @@ export async function collectOperationalHealth(
   database: D1Database,
   locals?: App.Locals,
 ): Promise<OperationalHealth> {
-  const [depth, delivery, mengantar, receiverScore, autolaris, googleAdsDepth, schema] = await Promise.all([
+  const [depth, delivery, mengantar, receiverScore, autolaris, googleAdsDepth, schema, schedulerRunAt] = await Promise.all([
     readCapiOutboxDepth(database),
     readCapiDeliveryWindow(database),
     readMengantarWindow(database),
@@ -521,6 +575,7 @@ export async function collectOperationalHealth(
     readAutoLarisWindow(database),
     readGoogleAdsOutboxDepth(database),
     getSchemaVersionStatus(locals),
+    readSchedulerHeartbeat(database),
   ]);
 
   const now = Date.now();
@@ -535,6 +590,7 @@ export async function collectOperationalHealth(
       Boolean(getEnvValue("OPS_ALERT_WEBHOOK_URL", getRuntimeEnv(locals))?.trim()),
       now,
     ),
+    classifyScheduler(schedulerRunAt, now),
   ];
 
   return {

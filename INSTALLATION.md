@@ -1,6 +1,6 @@
 # Installing AdsBookCMS
 
-> Verified against disk: 2026-10-07 @ `515e81b` + autolaris-readiness/landing-thumbnail working tree
+> Verified against disk: 2026-10-07 @ `515e81b` + autolaris-readiness/landing-thumbnail working tree; the store's-own-mark item re-verified 2026-10-31 @ `1b10ce1` + feat/storefront-shopify-color
 
 This document describes how an install is actually stood up today, and where that process is still rougher than the product intends to be. It contains no commands that do not exist. Where a step is manual because the tooling has not been built yet, it says so and points at the gap.
 
@@ -133,8 +133,11 @@ rebuild. Keep them accurate, because they are what an uninstalled Worker shows:
 | --- | --- |
 | `PUBLIC_SITE_NAME` | every `<title>`, header, footer, JSON-LD publisher, OG site name |
 | `PUBLIC_SITE_URL` | canonical origin — must be `https:`, no path, no query, or it silently falls back |
+| `PUBLIC_ALIAS_HOSTS` | optional, comma separated older domains (`www.` implied). Each one 301s to `PUBLIC_SITE_URL` with path and query kept, and every `http:` request goes to `https:`. `/api/*` is never redirected (`src/lib/host-redirect.ts`). Read at runtime, so a deploy without a rebuild applies it. Attach each host as a custom domain too. `stores.site_url` must match the new canonical origin. |
 | `PUBLIC_SITE_DESCRIPTION` | default meta description |
 | `PUBLIC_SITE_LOGO` | storefront and admin logo path |
+| `PUBLIC_SITE_BRAND_MARK` | optional header mark beside the store name, root-relative or `https:` (anything else is ignored). Unset keeps the letter monogram |
+| `PUBLIC_SITE_NOINDEX` | `true` keeps the whole store out of search (`X-Robots-Tag` and robots meta `noindex, nofollow` on every page). For a funnel domain that sells the same products as the brand's main shop; paid ads still run on noindexed pages. Unset keeps the store indexed |
 | `PUBLIC_SITE_TAGLINE` | brand line, also used to compose the default title |
 | `PUBLIC_SITE_THEME_COLOR` | must match `#rrggbb` or it falls back |
 | `PUBLIC_SITE_LOCALE` | `id-ID` style; drives `lang` and OG locale |
@@ -165,6 +168,8 @@ npx wrangler secret put AUTH_SECRET            # 32+ chars; otherwise generated 
 npx wrangler secret put BOOTSTRAP_ADMIN_PASSWORD
 ```
 
+The Kelola CRM push is off until a webhook URL and secret from Kelola are saved under `/admin/profile` (or set as `KELOLA_ORDER_WEBHOOK_URL` / `KELOLA_ORDER_WEBHOOK_SECRET`; the saved pair wins). It sends each new order to Kelola as a sale and each order still abandoned after 30 minutes as a follow-up lead.
+
 Provider credentials — `MENGANTAR_API_KEY`, `AUTOLARIS_API_KEY`, `META_CAPI_ACCESS_TOKEN`, and their base URLs — can be set either as secrets or, preferably, saved later from `/admin/profile` and `/admin/ads`. The database value wins over the deployed secret, and `/admin` reports which source is active.
 
 `INSTALL_TOKEN` is the one-time capability requested by the fresh-install wizard;
@@ -179,7 +184,7 @@ For local development the same keys go in `.dev.vars`, which is never committed.
 
 ## 7. Verify the schema path
 
-The Worker bundles all 62 checked-in migrations (`0000`–`0061`) and applies a valid missing suffix
+The Worker bundles all 67 checked-in migrations (`0000`–`0066`) and applies a valid missing suffix
 automatically before serving a database-backed request. No terminal migration step
 is required for first run. Invalid, unknown, or ahead migration history returns a
 labelled 503 instead of running the application against an indeterminate schema.
@@ -285,7 +290,8 @@ installer can do for the operator:
 - **The store's own mark.** The logo is set in `/admin` (Settings → Store), but
   the browser-tab and home-screen icons are files: replace `public/favicon.ico`,
   `public/favicon.png`, `public/favicon-192.png` and `public/images/logo.svg` in
-  the install repo, or every tab shows the product's neutral emblem.
+  the install repo, or every tab shows the AdsBookCMS product icon (a flat blue
+  tile with an open book and an up-right arrow).
 - **An alert webhook** (`OPS_ALERT_WEBHOOK_URL`, OBSERVABILITY.md §5), or a
   stalled conversion queue reaches no one.
 

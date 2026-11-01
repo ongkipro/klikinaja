@@ -16,6 +16,7 @@ import { toE164Digits } from "./meta-capi.ts";
 import { parseMetaOrderContext } from "./meta-order-context.ts";
 import { parseClickIds } from "./click-ids.ts";
 import { matchableCustomerEmail } from "./autolaris-payment.ts";
+import { isVoidOrder } from "./order-lifecycle.ts";
 
 type PaidOrderRow = {
   order_number: string;
@@ -26,6 +27,8 @@ type PaidOrderRow = {
   city: string;
   postal_code: string | null;
   payment_status: string;
+  shipping_status: string;
+  stock_restored_at: string | null;
   ad_click_ids: string | null;
   meta_request_context: string | null;
   product_value: number;
@@ -37,6 +40,27 @@ export type PaidOrderPurchaseResult =
   | { status: "queued"; delivered: boolean }
   | { status: "deduplicated" }
   | { status: "skipped"; reason: string };
+
+const PAID_STATUSES = new Set(["paid", "settled", "success"]);
+
+/**
+ * Whether an operator's payment edit is the moment a manual transfer becomes a
+ * Purchase. The buyer paid into the seller's own account, often after a
+ * WhatsApp chat, so `/thanks` never saw it paid and only the operator can.
+ * COD stays out on purpose: its Purchase is the persisted order, sent from
+ * `/thanks`, and courier remittance must not report it a second time.
+ */
+export function manualTransferBecamePaid(
+  paymentMethod: string,
+  previousStatus: string,
+  nextStatus: string,
+): boolean {
+  return (
+    paymentMethod === "manual_transfer" &&
+    PAID_STATUSES.has(nextStatus) &&
+    !PAID_STATUSES.has(previousStatus)
+  );
+}
 
 export async function enqueuePurchaseForPaidOrder(
   database: D1Database,
@@ -51,6 +75,7 @@ export async function enqueuePurchaseForPaidOrder(
     .prepare(
       `SELECT o.order_number, o.customer_name, o.customer_phone, o.customer_email,
               o.province, o.city, o.postal_code, o.payment_status,
+              o.shipping_status, o.stock_restored_at,
               o.ad_click_ids, o.meta_request_context,
               (SELECT COALESCE(SUM(oi.unit_price * oi.quantity), 0)
                  FROM order_items oi WHERE oi.order_id = o.id) AS product_value
@@ -61,9 +86,12 @@ export async function enqueuePurchaseForPaidOrder(
     .bind(orderId)
     .first<PaidOrderRow>();
   if (!order) return { status: "skipped", reason: "order-not-found" };
-  if (!["paid", "settled", "success"].includes(String(order.payment_status).toLowerCase())) {
+  if (!PAID_STATUSES.has(String(order.payment_status).toLowerCase())) {
     return { status: "skipped", reason: "order-not-paid" };
   }
+  // Read after the caller's own mutation, so a cancel or return in the same
+  // edit counts. A paid-then-voided order is money to refund, not a conversion.
+  if (isVoidOrder(order)) return { status: "skipped", reason: "order-void" };
   const products = await database
     .prepare(
       `SELECT DISTINCT p.id AS product_id, p.title

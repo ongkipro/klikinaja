@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { enqueuePurchaseForPaidOrder } from "./paid-order-purchase.ts";
+import { enqueuePurchaseForPaidOrder, manualTransferBecamePaid } from "./paid-order-purchase.ts";
 
 type Row = Record<string, unknown>;
 
 function createDatabase(options: {
   paymentStatus: string;
+  shippingStatus?: string;
+  stockRestoredAt?: string | null;
   pixel: boolean;
   alreadyQueued?: boolean;
   /** What the checkout stored on the order, if anything. */
@@ -36,6 +38,10 @@ function createDatabase(options: {
               city: "Bogor",
               postal_code: "16111",
               payment_status: options.paymentStatus,
+              // Only what the query names: dropping a column from the SELECT
+              // must reach the guard as a missing value, the way D1 would.
+              ...(sql.includes("o.shipping_status") ? { shipping_status: options.shippingStatus ?? "pending" } : {}),
+              ...(sql.includes("o.stock_restored_at") ? { stock_restored_at: options.stockRestoredAt ?? null } : {}),
               ad_click_ids: null,
               meta_request_context: options.metaRequestContext ?? null,
               product_value: 150_000,
@@ -109,6 +115,27 @@ test("an unpaid order, an unconfigured pixel, and an already-sent Purchase are a
 });
 
 /**
+ * "Transfer Diterima" on an order already cancelled or returned records the
+ * money, but a void order is a refund to make, not a conversion to report.
+ * The guard sits in the shared enqueue, so the cron and reconciliation paths
+ * hold it too.
+ */
+test("a paid but void order never enqueues a Purchase", async () => {
+  for (const void_ of [
+    { shippingStatus: "cancelled" },
+    { shippingStatus: "returned" },
+    { shippingStatus: "pending", stockRestoredAt: "2026-10-28 10:00:00" },
+  ]) {
+    const { database, outbox } = createDatabase({ paymentStatus: "paid", pixel: true, ...void_ });
+    assert.deepEqual(await enqueuePurchaseForPaidOrder(database, locals(database), 41), {
+      status: "skipped",
+      reason: "order-void",
+    });
+    assert.equal(outbox.length, 0);
+  }
+});
+
+/**
  * A COD Purchase is confirmed hours or days later, from a cron or an admin
  * click, with no request of the buyer's own. Everything Meta matches on beyond
  * the phone number has to come off the order or the event goes out weak — so
@@ -146,4 +173,16 @@ test("a stored checkout context reaches the server-side Purchase", async (contex
   assert.equal(payload.userData.externalId, "0123456789abcdef0123456789abcdef");
   // Meta reads a missing country as a missing key rather than a default.
   assert.equal(payload.userData.country, "id");
+});
+
+test("only a manual transfer turning paid is an operator-confirmed Purchase", () => {
+  assert.equal(manualTransferBecamePaid("manual_transfer", "pending", "paid"), true);
+  assert.equal(manualTransferBecamePaid("manual_transfer", "unpaid", "settled"), true);
+  // Already paid: re-saving the order must not report it again.
+  assert.equal(manualTransferBecamePaid("manual_transfer", "paid", "paid"), false);
+  assert.equal(manualTransferBecamePaid("manual_transfer", "pending", "failed"), false);
+  // COD's Purchase is the persisted order, sent from /thanks.
+  assert.equal(manualTransferBecamePaid("cod", "unpaid", "paid"), false);
+  // QRIS and VA are confirmed by AutoLaris reconciliation, which sends its own.
+  assert.equal(manualTransferBecamePaid("bank_transfer", "pending", "paid"), false);
 });

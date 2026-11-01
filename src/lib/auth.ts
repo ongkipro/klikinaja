@@ -29,6 +29,7 @@ export type AdminSession = {
 
 const ADMIN_PAGE_ROUTES = [
   '/admin/dashboard',
+  '/admin/analytics',
   '/admin/orders',
   '/admin/products',
   '/admin/landing-pages',
@@ -45,10 +46,16 @@ const ADMIN_PAGE_ROUTES = [
   '/admin/settings/developer',
   '/admin/settings/warehouse',
   '/admin/settings/crm',
+  '/admin/settings/plugins',
+  '/admin/settings/whatsapp',
+  '/admin/status',
 ] as const;
 
 const ADMIN_API_ROUTES = [
   '/api/admin/analytics',
+  // The Analitik menu (PRD A37). Not beneath `/api/admin/analytics`:
+  // `matchesRoute` is a prefix match and customer service holds that entry.
+  '/api/admin/insights',
   '/api/admin/abandoned-orders',
   '/api/admin/health',
   '/api/admin/orders',
@@ -67,13 +74,17 @@ const ADMIN_API_ROUTES = [
   '/api/admin/seller-bank-accounts',
   '/api/admin/payment-reconciliation',
   '/api/admin/notifications',
+  '/api/admin/whatsapp-numbers',
+  '/api/admin/warehouses',
   '/api/admin/profile',
+  '/api/admin/plugins',
   '/api/admin/logout',
 ] as const;
 
 const ROLE_PAGE_ROUTES: Record<Exclude<AdminRole, 'owner' | 'admin'>, readonly string[]> = {
   advertiser: [
     '/admin/dashboard',
+    '/admin/analytics',
     '/admin/products',
     '/admin/landing-pages',
     '/admin/content',
@@ -92,6 +103,7 @@ const ROLE_PAGE_ROUTES: Record<Exclude<AdminRole, 'owner' | 'admin'>, readonly s
 const ROLE_API_ROUTES: Record<Exclude<AdminRole, 'owner' | 'admin'>, readonly string[]> = {
   advertiser: [
     '/api/admin/analytics',
+    '/api/admin/insights',
     '/api/admin/products',
     '/api/admin/landing-pages',
     '/api/admin/content',
