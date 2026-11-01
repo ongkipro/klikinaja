@@ -30,6 +30,11 @@
 
 
   "compatibility_date": "2026-08-01",
+  // Smart Placement (ADR-030): run the Worker beside its APAC D1 (Singapore)
+  // instead of in whichever colo the visitor happened to hit.
+  "placement": {
+    "mode": "smart"
+  },
   "compatibility_flags": [
     "nodejs_compat"
   ],
